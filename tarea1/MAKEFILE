@@ -1,7 +1,0 @@
-
-main: tarea1.c
-	gcc -Wall -g -o main tarea1.c
-
-.PHONY: clean
-clean:
-	rm -rf *.o
