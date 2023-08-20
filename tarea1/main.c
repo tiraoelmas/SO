@@ -4,6 +4,18 @@
 
 const int MAX = 1000;
 
+struct charM {
+    char** mp;
+    int dimension;
+};
+
+void liberar(struct charM* matriz){
+    for(int i = matriz->dimension; i>0; i--){
+        free(matriz->mp[i]);
+    }
+    free(matriz->mp);
+    free(matriz);
+}
 char* getLine(FILE* fp){
     char temp[MAX];
     int i = 0;
@@ -20,7 +32,7 @@ char* getLine(FILE* fp){
     } // por alguna razón a veces se añadia el caracter 127 al final de forma ¿aleatoria?
     char* line = malloc(strlen(temp));
     strcpy(line,temp);
-    printf("%s (in getLine de largo: %ld) (%d)\n",line,strlen(line),line[strlen(line)-1]);
+    //printf("%s (in getLine de largo: %ld) (%d)\n",line,strlen(line),line[strlen(line)-1]);
     return line;
 }
 
@@ -79,31 +91,42 @@ char* getLine(FILE* fp){
 }
  */
 
-int crearMatriz(const char* nombreArchivo){
+struct charM* crearMatriz(const char* nombreArchivo){
     //char temp[MAX];
     char* tmp;
     int i= 0;
     FILE *fp = fopen(nombreArchivo,"r");
+    struct charM* strArray = malloc(sizeof(struct charM));
     if (fp == NULL){
         printf("No se pudo abrir el archivo :c\n");
-        return -1;
+        return NULL;
     }
 
     tmp = getLine(fp);
+    (*strArray).mp = malloc(strlen(tmp));
+    strArray->mp[0] = tmp;
+    strArray->dimension = strlen(tmp);
     printf("%s (in getLine de largo: %ld) (%d)\n",tmp,strlen(tmp),tmp[strlen(tmp)-1]);
-    char** strArray = malloc(strlen(tmp));
-    strArray[0] = tmp;
     i++;
     while(!feof(fp)){
-        printf("a\n");
-        strArray[i] = getLine(fp);
-        printf("Linea %d: %s\n",i,strArray[i]);
+        //printf("a\n");
+        strArray->mp[i] = getLine(fp);
+        printf("Linea %d: %s\n",i+1,strArray->mp[i]);
         i++;
     }
-    return 0;
+    //sizeof();
+    return strArray;
 }
-
-
+int buscarPalabra(struct charM matrix){
+    
+}
+int trasponerMatriz(struct charM matrix){
+    int tmp;
+    int n = matrix.dimension;
+    for(int i = 0;i<n;i++){
+        matrix.mp[i][]
+    }
+}
 void prueba(){
     FILE *arc = fopen("archivo.txt","r");
     char* linea;
@@ -128,7 +151,8 @@ int main(){
     }else if(opcion == 3){
         prueba();
     }else if(opcion == 4){
-        crearMatriz("archivo.txt");
+        struct charM *matrix = crearMatriz("archivo.txt");
+        //liberar(matrix);
     }
     printf("Fin de la ejecución.\n");
     return 0;
