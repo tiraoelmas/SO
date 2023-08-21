@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <dirent.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 const int MAX = 1000;
 
@@ -26,6 +30,7 @@ void liberar(struct charM* matriz){
     free(matriz->mp);
     free(matriz);
 }
+
 char* getLine(FILE* fp){
     char temp[MAX];
     int i = 0;
@@ -42,15 +47,12 @@ char* getLine(FILE* fp){
     } // por alguna razón a veces se añadia el caracter 127 al final de forma ¿aleatoria?
     //printf("%d\n",i);
     size_t u = i;
-    //printf("%ld\n",u);
+    //printf("u1: %ld || ",u);
     char* line = calloc(u,sizeof(char));
-    strncpy(line,temp,u);
-    //strcpy(line,temp);
-    for(int j = 0;j<strlen(line+1);j++){
-        if (line[j]< 65 || line[j]> 90){
-            //printf("bra\n\n\n");
-        }
-    }
+    //strncpy(line,temp,u);
+    strcpy(line,temp);
+    //printf("u2: %ld || ",u);
+    //printf("len: %ld\n",strlen(line));
     //printf("%s (in getLine de largo: %ld) (%d)\n",line,strlen(line),line[strlen(line)-1]);
     return line;
 }
@@ -111,7 +113,6 @@ char* getLine(FILE* fp){
  */
 
 struct charM* crearMatriz(const char* nombreArchivo){
-    //char temp[MAX];
     char* tmp;
     int i= 0;
     FILE *fp = fopen(nombreArchivo,"r");
@@ -125,10 +126,11 @@ struct charM* crearMatriz(const char* nombreArchivo){
     strcpy(strArray->orientacion,tmp);
     tmp = getLine(fp);
     const int n = strlen(tmp);
+    printf("%d\n",n);
     strArray->mp = calloc(n,sizeof(char*));
     strArray->mp[0] = tmp;
-    strArray->dimension = strlen(tmp);
-    printf("%s (in getLine de largo: %d) (%d)\n",tmp,n,tmp[n-1]);
+    strArray->dimension = n;
+    //printf("%s (in getLine de largo: %d) (%d)\n",tmp,n,tmp[n-1]);
     i++;
     while(!feof(fp)){
         //printf("a\n");
@@ -136,7 +138,11 @@ struct charM* crearMatriz(const char* nombreArchivo){
         //printf("Linea %d: %s\n",i+1,strArray->mp[i]);
         i++;
     }
-    printf("Linea %d: %s\n",2,strArray->mp[1]);
+    int m = strlen(strArray->mp[1]);
+    if(strArray->mp[1][m-1]<65 || strArray->mp[1][m-1]>122){
+        strArray->mp[1][m-1] = 0;
+    }
+    //printf("Linea %d: %s\nchar n%d: %c\n",2,strArray->mp[1],m,strArray->mp[1][m-1]);
     //sizeof();
     fclose(fp);
     return strArray;
@@ -144,7 +150,9 @@ struct charM* crearMatriz(const char* nombreArchivo){
 int buscarPalabra(struct charM *matrix, char* clave){
     for(int i = 0;i<matrix->dimension;i++){
         if(strstr(matrix->mp[i],clave) != NULL || strstr(matrix->mp[i],strReverse(clave)) != NULL){
+            printf("%d\n",i);
             return 1;
+            
         }
     }
     return 0;
@@ -154,8 +162,9 @@ int trasponerMatriz(struct charM* matrix){
     printf("vamos a trasponer rawr\n");
     char tmp;
     int n = matrix->dimension;
+    printf("n: %d\n",matrix->dimension);
     //matrix->mp[0][0]='Z';
-    for(int i = 0;i<n;i++){
+    for(int i = 75;i<n;i++){
         for(int j = i; j<n;j++){
             //printf("%d,%d\n",i,j);
             tmp = matrix->mp[i][j];
@@ -182,6 +191,124 @@ void prueba(){
         return;
     }
 }
+int carpetas(){
+    DIR *dir;
+    struct dirent* entry;
+    char direct[100] = "./archivos/";
+    char cambiar[300];
+
+    const char *archiv = "./archivos";
+
+    if (opendir("./CWD") == NULL){
+        mkdir("./CWD", 0700);
+    }
+
+    dir = opendir(archiv);
+    if (dir==NULL){
+        printf("no se abrió el archivo");
+        exit(2);
+    }
+
+     while ((entry = readdir(dir)) != NULL) {
+        if((strcmp(entry->d_name, ".") != 0) && (strcmp(entry->d_name, "..") != 0) ){
+        // Procesar la entrada (nombre del archivo) aquí
+        printf("Nombre del archivo: %s\n", entry->d_name);
+        strcat(direct, entry->d_name);
+        FILE *archivo;
+        char linea[13];
+        char letraSopa[2];
+        int contador_horizontal = 0;
+        int contador_vertical = 0;
+        archivo = fopen(direct, "r");
+        if (fgets(linea, sizeof(linea), archivo) != NULL){
+            printf("la linea es: %s", linea);    
+        }
+
+        fgets(letraSopa, sizeof(letraSopa), archivo);
+        contador_horizontal++;
+        while(letraSopa[0] != '\n'){
+            fgets(letraSopa, sizeof(letraSopa), archivo);
+            contador_horizontal++;
+        }
+        contador_horizontal = (contador_horizontal-1)/2;
+        contador_vertical = contador_horizontal;
+        printf("el tamaño del archivo es: %dx%d\n", contador_horizontal, contador_vertical);
+        printf("\n");
+        printf("%d", strcmp(linea, "horizontal"));
+        if (strcmp(linea, "vertical") == 13){
+            if (opendir("./CWD/vertical") == NULL){
+                mkdir("./CWD/vertical", 0700);
+            }
+            printf("%d\n", contador_horizontal);
+            if (contador_horizontal == 50){
+                if (opendir("./CWD/vertical/50x50") == NULL){
+                    mkdir("./CWD/vertical/50x50", 0700);
+                }
+                strcpy(cambiar, "./CWD/vertical/50x50/");
+                strcat(cambiar, entry->d_name);
+                printf("%s", direct);
+                rename(direct, cambiar);
+            }    
+            else if(contador_horizontal == 100){
+                if (opendir("./CWD/vertical/100x100") == NULL){
+                    mkdir("./CWD/vertical/100x100", 0700);
+                }
+                strcpy(cambiar, "./CWD/vertical/100x100/");
+                strcat(cambiar, entry->d_name);
+                printf("%s", direct);
+                rename(direct, cambiar);
+            }
+            else if((contador_horizontal == 200)){
+                if (opendir("./CWD/vertical/200x200") == NULL){
+                    mkdir("./CWD/vertical/200x200", 0700);
+                }
+                strcpy(cambiar, "./CWD/vertical/200x200/");
+                strcat(cambiar, entry->d_name);
+                printf("%s", direct);
+                rename(direct, cambiar);
+
+            }
+        }    
+        if (strcmp(linea, "horizontal") == 13){
+            if (opendir("./CWD/horizontal") == NULL){
+                mkdir("./CWD/horizontal", 0700);
+            }
+            printf("%d\n", contador_horizontal);
+            if (contador_horizontal == 50){
+                if (opendir("./CWD/horizontal/50x50") == NULL){
+                    mkdir("./CWD/horizontal/50x50", 0700);
+                }
+                strcpy(cambiar, "./CWD/horizontal/50x50/");
+                strcat(cambiar, entry->d_name);
+                printf("%s", direct);
+                rename(direct, cambiar);
+            }    
+            else if(contador_horizontal == 100){
+                if (opendir("./CWD/horizontal/100x100") == NULL){
+                    mkdir("./CWD/horizontal/100x100", 0700);
+                }
+                strcpy(cambiar, "./CWD/horizontal/100x100/");
+                strcat(cambiar, entry->d_name);
+                printf("%s", direct);
+                rename(direct, cambiar);
+            }
+            else if((contador_horizontal == 200)){
+                if (opendir("./CWD/horizontal/200x200") == NULL){
+                    mkdir("./CWD/horizontal/200x200", 0700);
+                }
+                strcpy(cambiar, "./CWD/horizontal/200x200/");
+                strcat(cambiar, entry->d_name);
+                printf("%s", direct);
+                rename(direct, cambiar);
+
+            }
+        }    
+        }
+
+        strcpy(direct, "./archivos/");
+        return 0;
+    }
+}
 int main(){
     //printf("%c",-47);
     printf("Inicio de la ejecución\n");
@@ -197,7 +324,7 @@ int main(){
         prueba();
     }else if(opcion == 4){
         clock_t start = clock();
-        struct charM *matrix = crearMatriz("banco.txt");
+        struct charM *matrix = crearMatriz("Carne.txt");
         //printf("%d\n",strcmp(matrix->orientacion,"vertical"));
         printf("orientacion: %s\n",matrix->orientacion);
         if(strcmp(matrix->orientacion,"vertical") == 0){
@@ -208,10 +335,10 @@ int main(){
 
         //clock_t start = clock();
         //for(int p = 0;p<100000000;p++){}
-        printf("%d\n",buscarPalabra(matrix,"BANCO"));
+        printf("%d\n",buscarPalabra(matrix,"CARNE"));
         clock_t end = clock();
         double total = (double)(end - start) / CLOCKS_PER_SEC;
-        printf("start: %ld\nend: %ld\n",start,end);
+        printf("start: %ld\nend: %ld\ncocks realizados:%f\n",start,end,total);
         //liberar(matrix);
     }
     printf("Fin de la ejecución.\n");
