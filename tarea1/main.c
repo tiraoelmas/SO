@@ -110,7 +110,7 @@ struct charM* crearMatriz(const char* nombreArchivo){
         printf("No se pudo abrir el archivo :c\n");
         return NULL;
     }
-
+    orientacion = &getline(fp);
     tmp = getLine(fp);
     const int n = strlen(tmp);
     strArray->mp = calloc(n,sizeof(char*));
@@ -170,7 +170,7 @@ void prueba(){
     }
 }
 int main(){
-    printf("%c",-47);
+    char orientacion[13]; 
     printf("Inicio de la ejecución\n");
     int opcion = 4;
     //scanf("%d",&opcion);
@@ -184,9 +184,13 @@ int main(){
         prueba();
     }else if(opcion == 4){
         struct charM *matrix = crearMatriz("viktor.txt");
-        //trasponerMatriz(matrix);
+        if (strcmp(orientacion, "vertical")){
+            trasponerMatriz(matrix);
+            printf("%d\n",buscarPalabra(matrix,"VIKTOR"));
         //printMatriz(matrix);
-        printf("%d\n",buscarPalabra(matrix,"VIKTOR"));
+        else if(strcmp(orientacion, "horizontal")){
+            printf("%d\n",buscarPalabra(matrix,"VIKTOR"));
+        }
         //liberar(matrix);
     }
     printf("Fin de la ejecución.\n");
