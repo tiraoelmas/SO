@@ -5,7 +5,7 @@
 const int MAX = 1000;
 
 struct charM {
-    char** mp;
+    char*** mp;
     int dimension;
 };
 
@@ -17,30 +17,22 @@ void liberar(struct charM* matriz){
     free(matriz);
 }
 char* getLine(FILE* fp){
-    char temp[MAX];
+    char* temp[MAX];
     int i = 0;
     char c = 'a';
     while(c != '\n' && !feof(fp)){
         c = fgetc(fp);
-        if(c >= 65 && c<= 90){
+        if(c != ' ' && c != '\n' && c!= -1){
+            temp[i] = malloc(1);
             temp[i] = c;
             i++;
         }
     }
-    if(temp[i-1]<65 || temp[i-1]>90){
-        temp[i-1] = 0;
+    if(temp[strlen(temp)-1]==127){
+        temp[strlen(temp)-1] = 0;
     } // por alguna razón a veces se añadia el caracter 127 al final de forma ¿aleatoria?
-    //printf("%d\n",i);
-    size_t u = i;
-    //printf("%ld\n",u);
-    char* line = calloc(u,sizeof(char));
-    strncpy(line,temp,u);
-    //strcpy(line,temp);
-    for(int j = 0;j<strlen(line+1);j++){
-        if (line[j]< 65 || line[j]> 90){
-            //printf("bra\n\n\n");
-        }
-    }
+    char* line = malloc(strlen(temp));
+    strcpy(line,temp);
     //printf("%s (in getLine de largo: %ld) (%d)\n",line,strlen(line),line[strlen(line)-1]);
     return line;
 }
@@ -95,7 +87,7 @@ char* getLine(FILE* fp){
     }
     else{return -1;}
 
-    //faltan dos cosas nomas: - (R)quitar espacios a la hora de getear lineas.
+    //faltan dos cosas nomas: -quitar espacios a la hora de getear lineas.
     //                        -caso vertical -> trasponer el strArray.
 }
  */
@@ -112,50 +104,40 @@ struct charM* crearMatriz(const char* nombreArchivo){
     }
 
     tmp = getLine(fp);
-    const int n = strlen(tmp);
-    strArray->mp = calloc(n,sizeof(char*));
+    (*strArray).mp = malloc(strlen(tmp));
     strArray->mp[0] = tmp;
     strArray->dimension = strlen(tmp);
-    printf("%s (in getLine de largo: %d) (%d)\n",tmp,n,tmp[n-1]);
+    printf("%s (in getLine de largo: %ld) (%d)\n",tmp,strlen(tmp),tmp[strlen(tmp)-1]);
     i++;
     while(!feof(fp)){
         //printf("a\n");
         strArray->mp[i] = getLine(fp);
-        //printf("Linea %d: %s\n",i+1,strArray->mp[i]);
+        printf("Linea %d: %s\n",i+1,strArray->mp[i]);
         i++;
     }
-    printf("Linea %d: %s\n",2,strArray->mp[1]);
     //sizeof();
-    fclose(fp);
     return strArray;
 }
-int buscarPalabra(struct charM *matrix, char* clave){
-    for(int i = 0;i<matrix->dimension;i++){
-        if(strstr(matrix->mp[i],clave) != NULL){
-            return 1;
-        }
-    }
+int buscarPalabra(struct charM matrix){
     return 0;
 }
 int trasponerMatriz(struct charM* matrix){
     printf("vamos a trasponer rawr\n");
     char tmp;
     int n = matrix->dimension;
-    //matrix->mp[0][0]='Z';
     for(int i = 0;i<n;i++){
         for(int j = i; j<n;j++){
             printf("%d,%d\n",i,j);
             tmp = matrix->mp[i][j];
-            matrix->mp[i][j] = matrix->mp[j][i];
-            matrix->mp[j][i] = tmp;
+            //matrix->mp[i][j] = matrix->mp[j][i];
+            //matrix->mp[j][i] = tmp;
         }
     }
     return 0;
 }
 void printMatriz(struct charM* matrix){
-    printf("%d\n",matrix->dimension);
     for(int i = 0;i<matrix->dimension;i++){
-        printf("Linea %d: %s\n",i,matrix->mp[i]);
+        printf("%s\n",matrix->mp[i]);
     }
 }
 void prueba(){
@@ -170,7 +152,6 @@ void prueba(){
     }
 }
 int main(){
-    printf("%c",-47);
     printf("Inicio de la ejecución\n");
     int opcion = 4;
     //scanf("%d",&opcion);
@@ -183,10 +164,9 @@ int main(){
     }else if(opcion == 3){
         prueba();
     }else if(opcion == 4){
-        struct charM *matrix = crearMatriz("viktor.txt");
-        //trasponerMatriz(matrix);
+        struct charM *matrix = crearMatriz("archivo.txt");
+        int i = trasponerMatriz(matrix);
         //printMatriz(matrix);
-        printf("%d\n",buscarPalabra(matrix,"VIKTOR"));
         //liberar(matrix);
     }
     printf("Fin de la ejecución.\n");
