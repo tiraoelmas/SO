@@ -1,14 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 const int MAX = 1000;
 
 struct charM {
+    char orientacion[20];
     char** mp;
     int dimension;
 };
 
+char* strReverse(char* src){
+    int l = strlen(src);
+    char* dest = calloc(l,sizeof(char));
+    for(int i = 0;i<l;i++){
+        dest[i]=src[l-i-1];
+    }
+    return dest;
+}
 void liberar(struct charM* matriz){
     for(int i = matriz->dimension; i>0; i--){
         free(matriz->mp[i]);
@@ -22,12 +32,12 @@ char* getLine(FILE* fp){
     char c = 'a';
     while(c != '\n' && !feof(fp)){
         c = fgetc(fp);
-        if(c >= 65 && c<= 90){
+        if(c >= 65 && c<= 122){
             temp[i] = c;
             i++;
         }
     }
-    if(temp[i-1]<65 || temp[i-1]>90){
+    if(temp[i-1]<65 || temp[i-1]>122){
         temp[i-1] = 0;
     } // por alguna razón a veces se añadia el caracter 127 al final de forma ¿aleatoria?
     //printf("%d\n",i);
@@ -110,7 +120,9 @@ struct charM* crearMatriz(const char* nombreArchivo){
         printf("No se pudo abrir el archivo :c\n");
         return NULL;
     }
-
+    tmp = getLine(fp);
+    printf("orientaciooon: %s\n",tmp);
+    strcpy(strArray->orientacion,tmp);
     tmp = getLine(fp);
     const int n = strlen(tmp);
     strArray->mp = calloc(n,sizeof(char*));
@@ -131,12 +143,13 @@ struct charM* crearMatriz(const char* nombreArchivo){
 }
 int buscarPalabra(struct charM *matrix, char* clave){
     for(int i = 0;i<matrix->dimension;i++){
-        if(strstr(matrix->mp[i],clave) != NULL){
+        if(strstr(matrix->mp[i],clave) != NULL || strstr(matrix->mp[i],strReverse(clave)) != NULL){
             return 1;
         }
     }
     return 0;
 }
+
 int trasponerMatriz(struct charM* matrix){
     printf("vamos a trasponer rawr\n");
     char tmp;
@@ -144,7 +157,7 @@ int trasponerMatriz(struct charM* matrix){
     //matrix->mp[0][0]='Z';
     for(int i = 0;i<n;i++){
         for(int j = i; j<n;j++){
-            printf("%d,%d\n",i,j);
+            //printf("%d,%d\n",i,j);
             tmp = matrix->mp[i][j];
             matrix->mp[i][j] = matrix->mp[j][i];
             matrix->mp[j][i] = tmp;
@@ -170,7 +183,7 @@ void prueba(){
     }
 }
 int main(){
-    printf("%c",-47);
+    //printf("%c",-47);
     printf("Inicio de la ejecución\n");
     int opcion = 4;
     //scanf("%d",&opcion);
@@ -183,10 +196,22 @@ int main(){
     }else if(opcion == 3){
         prueba();
     }else if(opcion == 4){
-        struct charM *matrix = crearMatriz("viktor.txt");
-        //trasponerMatriz(matrix);
-        //printMatriz(matrix);
-        printf("%d\n",buscarPalabra(matrix,"VIKTOR"));
+        clock_t start = clock();
+        struct charM *matrix = crearMatriz("banco.txt");
+        //printf("%d\n",strcmp(matrix->orientacion,"vertical"));
+        printf("orientacion: %s\n",matrix->orientacion);
+        if(strcmp(matrix->orientacion,"vertical") == 0){
+            trasponerMatriz(matrix);
+        }
+        printMatriz(matrix);
+        //printf("%s\n",strReverse("Hola"));
+
+        //clock_t start = clock();
+        //for(int p = 0;p<100000000;p++){}
+        printf("%d\n",buscarPalabra(matrix,"BANCO"));
+        clock_t end = clock();
+        double total = (double)(end - start) / CLOCKS_PER_SEC;
+        printf("start: %ld\nend: %ld\n",start,end);
         //liberar(matrix);
     }
     printf("Fin de la ejecución.\n");
