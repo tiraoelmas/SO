@@ -3,7 +3,11 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
-
+const int MAX = 1000000;
+struct charM {
+    char** mp;
+    int dimension;
+};
 
 struct tableroN{
     int bUP;
@@ -26,7 +30,54 @@ struct jugador{
     int coord_y;
 };
 
+char* getLine(FILE* fp){
+    char temp[MAX];
+    int i = 0;
+    char c = 'a';
+    while(c != '\n' && !feof(fp)){
+        c = fgetc(fp);
+        if(c == 'B' || c == 'E'|| c == '1'|| c == '2'|| c == '3'|| c == '4'|| c == '/'|| c == '0'){
+            temp[i] = c;
+            i++;
+        }
+    }
+    size_t u = i;
+    char* line = calloc(u,sizeof(char));
+    strncpy(line,temp,u);    
+    return line;
+}
 
+
+// struct charM* crearMatriz hace una matriz de la sopa de letras contenida en un archivo txt
+struct charM* crearMatriz(const char* nombreArchivo){
+    char* tmp;
+    int i= 0;
+    FILE *fp = fopen(nombreArchivo,"r");
+    struct charM* strArray = malloc(sizeof(struct charM));
+    if (fp == NULL){
+        printf("No se pudo abrir el archivo :c\n");
+        return NULL;
+    }
+    tmp = getLine(fp);
+    const int n = strlen(tmp);
+    strArray->mp = calloc(n,sizeof(char*));
+    strArray->mp[0] = tmp;
+    strArray->dimension = strlen(tmp);
+    i++;
+    while(!feof(fp)){
+        strArray->mp[i] = getLine(fp);
+        i++;
+    }
+    fclose(fp);
+    return strArray;
+}
+
+void printMatriz(struct charM* matrix){
+    printf("%d\n",matrix->dimension);
+    for(int i = 0;i<matrix->dimension;i++){
+        printf("Linea %d: %s\n",i,matrix->mp[i]);
+    }
+}
 struct centros* guardarCentros(){
     struct centros* allcenter = malloc(225*sizeof(struct centros));
     int k = 0;
@@ -39,9 +90,6 @@ struct centros* guardarCentros(){
     }
     return allcenter;
 }
-
-
-
 
 char** revolverMazoT(){
     int tableros[7];
@@ -102,7 +150,7 @@ struct tableroN salidasT(char* archiv){
     int j = 0;
     int m = fila + 5;
     while ((caracter = fgetc(file)) != EOF){
-  
+        printf("%c\n",caracter);
         if (j < m && fila < m && caracter != ' ' && caracter != '\n' && caracter != '1' && caracter != '2' && caracter != '3' && caracter != '4'){
             
             matris[fila][j] = caracter;
@@ -113,21 +161,18 @@ struct tableroN salidasT(char* archiv){
             fila = 0;
         }
     } 
-    for (int i = 0; i <5; i++){
-        for(int j = 0; j<5; j++){
-            if ( matris[i][j]== 'B' && i == 2 && j == 0){
+
+    if ( matris[2][0]== 'B'){
                 ubic.bUP = 1;
-            }
-            else if (matris[i][j] == 'B' && i == 0 && j == 2){
+    }
+    if (matris[0][2] == 'B'){
                 ubic.bLeft = 1;
-            }
-            else if (matris[i][j] == 'B' && i == 4 && j == 2){
+    }
+    if (matris[4][2] == 'B'){
                 ubic.bRight = 1;
-            }
-            else if (matris[i][j] == 'B' && i == 2 && j == 4){
+    }
+    if (matris[2][4] == 'B'){
                 ubic.bDown = 1;
-            }
-        }  
     }
     fclose(file);
     return ubic;
@@ -168,7 +213,7 @@ void juntarTablas(char inicio[][75],char* tablaCentral, char*tabla_a_unir, struc
         if (strcmp(allcenter[kai].nime, "cambiar") == 0 ){
             allcenter[kai].coord_x = m;
             allcenter[kai].coord_y = n;
-            strcpy(allcenter[kai].nime,tabla_a_unir);
+            strncpy(allcenter[kai].nime,tabla_a_unir,12);
         }
     }
 
@@ -221,7 +266,6 @@ void juntarTablas(char inicio[][75],char* tablaCentral, char*tabla_a_unir, struc
     }    
     fclose(tmp);
 }
-
 
 void verificarTablas(char inicio[][75],char* archivo,char** tableros, char dir, struct centros* allcenter){
     struct tableroN tablaSec;
@@ -302,35 +346,7 @@ void verificarTablas(char inicio[][75],char* archivo,char** tableros, char dir, 
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int main(){
+int main2(){
     char inicio[75][75];
     struct centros todos[7];
     for (int i = 0; i < 75; i++){
@@ -339,7 +355,7 @@ int main(){
         }
     }
     FILE *file;
-    printf("sas");
+    //printf("sas");
     file = fopen("Inicio.txt", "r");
     char caracter;
     int fila = 35;
@@ -358,7 +374,7 @@ int main(){
         }
     }
 
-    printf("sas");
+    //printf("sas");
     struct jugador jugadores[4];
     int k = 0;
     char nombre[3];
@@ -436,13 +452,13 @@ int main(){
 
 
     char** tableros = revolverMazoT();
-    printf("sas");
-    //verificarTablas(inicio, "Inicio.txt", tableros, 'd', todos);
+    //printf("sas");
+    verificarTablas(inicio, "Inicio.txt", tableros, 'd', todos);
 
     for (int i = 0; i<7; i++){
         printf(" %s", todos[i].nime);
         printf(" %d", todos[i].coord_x);
-        printf(" %d", todos[i].coord_y);
+        printf(" %d\n", todos[i].coord_y);
         
     }
 
@@ -452,4 +468,14 @@ int main(){
         free(tableros[i]);
     }
     free(tableros);
+    return 0;
+}
+
+int main(){ 
+    struct charM *matriz = crearMatriz("Inicio.txt");
+    printf("%c\n",matriz->mp[2][0]);
+    printMatriz(matriz);
+
+
+    return 0;
 }
