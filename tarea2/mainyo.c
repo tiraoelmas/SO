@@ -26,30 +26,99 @@ void generarPipes(int array[8][2]){
     for(int i = 0;i<8;i++){
         pipe(array[i]);
     }
-    
+}
+void generarCartas(int roles[4]){
+
+}
+void asignarRoles(){
+
 }
 
 int main(){
-    struct jugador jugador[4];
+    const int lenM;
+    struct jugador jugador;
     int pipes[8][2];
+    int mazoCartas[4];
+    char orden[lenM];
+    char input[lenM]; 
+    char ret[lenM];
     generarPipes(pipes);
+    generarCartas(mazoCartas);
     int id= 0;
+    int pid;
+    char accion[lenM];
     printf("proceso god: %d\n",getpid());
 
     
     printf("pipes creadas!\n");
 
     for(int i = 0;i<4;i++){
-        int pid=fork();
-        if (pid==0){
-        jugador[i].id = pid;
+        if ((pid=fork())==0){
+        
+        jugador.id = pid;
         id = i+1;
-        jugador[i].num = id;
+        jugador.num = id;
         break;}
     }
+    printf("Hola, me presento, soy: J%d (%d)\nhijo de:%d\n\n",jugador.num,getpid(),getppid());
+    //if(id == 0){jugador;}
 
-    for(int ronda=0;ronda<15;ronda++){
+
+
+    if(id == 0){ //logica principal del juego (en proceso padre)
+        printf("padre diciendo wa\n");
+        for(int ronda=1;ronda<=15;ronda++){
+            printf("\nINICIO DE LA RONDA: %d\n",ronda);
+
+            write(pipes[0][1],"nueva ronda",12);
+            for(int turno=1;turno<=4;turno++){
+                printf("Es el turno del J%d\n",turno);
+                read(pipes[turno][0],accion,lenM);
+            }
+        }
+    }/* else if(id == 1){ //soy el jugador 1 :oooo
+        read(pipes[0][0],input,lenM);
+        scanf("%s",input);
+        //hacer algo con el input
+        //generar ret
+        printf("%s",input);
+        write(pipes[1][1],ret,lenM);
     }
-    printf("soy: J%d (%d)\nhijo de:%d\n\n",id,getpid(),getppid());
-
+    else if(id == 2){ //soy el jugador 2 >:I
+        read(pipes[0][0],input,lenM);
+        scanf("%s",input);
+        //hacer algo con el input
+        //generar ret
+        printf("%s",input);
+        write(pipes[1][1],ret,lenM);
+    }
+    else if(id == 3){ //soy el jugador 3 c:
+        read(pipes[0][0],input,lenM);
+        scanf("%s",input);
+        //hacer algo con el input
+        //generar ret
+        printf("%s",input);
+        write(pipes[1][1],ret,lenM);
+    }
+    else if(id == 4){ //soy el jugador 4 grrr wofwof miau
+        read(pipes[0][0],input,lenM);
+        scanf("%s",input);
+        //hacer algo con el input
+        //generar ret
+        printf("%s",input);
+        write(pipes[1][1],ret,lenM);
+    } */
+    else{
+        if(id==1){
+            read(pipes[0][0],input,12);
+            if(!strcmp(input,"nueva ronda")){
+                printf("Indique la acción a realizar: \n");
+                scanf("%s",input);printf("\n");
+                //hacer algo con el input
+                //generar ret
+                printf("echo: %s\n",input);
+                write(pipes[id+3][1],ret,lenM);
+            }
+        }
+    }
 }

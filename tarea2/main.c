@@ -3,33 +3,13 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
+
+
 const int MAX = 1000000;
 struct charM {
     char** mp;
     int dimension;
 };
-
-struct tableroN{
-    int bUP;
-    int bLeft;
-    int bRight;
-    int bDown;
-};
-
-struct centros{
-    char nime[12];
-    int coord_x;
-    int coord_y;
-};
-
-struct jugador{
-    int numJugador;
-    char nombre[2];
-    char carta;
-    int coord_x;
-    int coord_y;
-};
-
 char* getLine(FILE* fp){
     char temp[MAX];
     int i = 0;
@@ -52,8 +32,11 @@ char* getLine(FILE* fp){
 struct charM* crearMatriz(const char* nombreArchivo){
     char* tmp;
     int i= 0;
+    printf("|||||||%s\n", nombreArchivo);
+     printf("holaa");
     FILE *fp = fopen(nombreArchivo,"r");
     struct charM* strArray = malloc(sizeof(struct charM));
+     printf("holaa");
     if (fp == NULL){
         printf("No se pudo abrir el archivo :c\n");
         return NULL;
@@ -68,6 +51,7 @@ struct charM* crearMatriz(const char* nombreArchivo){
         strArray->mp[i] = getLine(fp);
         i++;
     }
+    printf("rawr");
     fclose(fp);
     return strArray;
 }
@@ -78,18 +62,36 @@ void printMatriz(struct charM* matrix){
         printf("Linea %d: %s\n",i,matrix->mp[i]);
     }
 }
-struct centros* guardarCentros(){
-    struct centros* allcenter = malloc(225*sizeof(struct centros));
-    int k = 0;
-    for (int i = 2; i<75; i = i+5){
-        for (int j = 2; j<75; j = j+5){
-           allcenter[k].coord_x = i;
-           allcenter[k].coord_y = j;
-           k++;
-        }
-    }
-    return allcenter;
-}
+
+
+
+
+
+
+
+struct tableroN{
+    int bUP;
+    int bLeft;
+    int bRight;
+    int bDown;
+};
+
+struct centros{
+    char nime[12];
+    int coord_x;
+    int coord_y;
+};
+
+struct jugador{
+    int numJugador;
+    char nombre[2];
+    char carta;
+    int coord_x;
+    int coord_y;
+};
+
+
+
 
 char** revolverMazoT(){
     int tableros[7];
@@ -132,64 +134,54 @@ char** revolverMazoT(){
 }
 
 struct tableroN salidasT(char* archiv){
-    struct tableroN ubic;
+    struct tableroN ubic;;
     ubic.bUP = 0;
     ubic.bRight = 0;
     ubic.bDown = 0;
     ubic.bLeft = 0;
-    char matris[5][5];
-    for (int i = 0; i < 5; i++){
-        for (int j = 0; j < 5; j++){
-            matris[i][j] = '-';
-        }
-   }
     FILE *file;
     file = fopen(archiv, "r");
-    char caracter;
-    int fila = 0;
-    int j = 0;
-    int m = fila + 5;
-    while ((caracter = fgetc(file)) != EOF){
-        printf("%c\n",caracter);
-        if (j < m && fila < m && caracter != ' ' && caracter != '\n' && caracter != '1' && caracter != '2' && caracter != '3' && caracter != '4'){
-            
-            matris[fila][j] = caracter;
-            fila++;
-        }
-        else if(caracter == '\n'){
-            j++;
-            fila = 0;
-        }
-    } 
+    struct charM* matriz = crearMatriz(archiv);
 
-    if ( matris[2][0]== 'B'){
-                ubic.bUP = 1;
-    }
-    if (matris[0][2] == 'B'){
+   if ( matriz->mp[0][2]== 'B'){
                 ubic.bLeft = 1;
     }
-    if (matris[4][2] == 'B'){
-                ubic.bRight = 1;
+    if (matriz->mp[2][0] == 'B'){
+                ubic.bUP = 1;
     }
-    if (matris[2][4] == 'B'){
+    if (matriz->mp[2][4] == 'B'){
                 ubic.bDown = 1;
     }
+    if (matriz->mp[4][2] == 'B'){
+                ubic.bRight = 1;
+    }
+    printf("miau");
     fclose(file);
     return ubic;
 }
 
-void juntarTablas(char inicio[][75],char* tablaCentral, char*tabla_a_unir, struct centros* allcenter, char dir){
+void juntarTablas(char inicio[][90],char* tablaCentral, char*tabla_a_unir, struct centros* allcenter, char dir){
     char caracter;
     int m = 0;
+     printf("ollaaaa");
     int n = 0;
-    for(int i = 0; i<7; i++){
-        if (strcmp(allcenter[i].nime, tablaCentral) == 0){
+    for(int i = 0; i<9; i++){
+
+        if (strncmp(allcenter[i].nime, tablaCentral, 10) == 0){
             m = allcenter[i].coord_x;
             n = allcenter[i].coord_y;
         }
     }
-    printf("%s", tabla_a_unir);
-    FILE* tmp = fopen(tabla_a_unir, "r");
+
+    char porsilas[12];
+    printf("ollaaaa");
+    strncpy(porsilas,tabla_a_unir,12);
+    
+    FILE* tmp = fopen(porsilas, "r");
+    if (tmp == NULL){
+        printf("No se pudo abrir el archivo :c\n");
+        
+    }
 
     switch (dir){
         case 'u':
@@ -205,15 +197,14 @@ void juntarTablas(char inicio[][75],char* tablaCentral, char*tabla_a_unir, struc
             n = n+5;
             break;
     }
-    allcenter[1].coord_x = 37;
     
-    printf("0000000%d00000000", m);
-    for (int kai = 0; kai<7; kai++){
-        printf("%d", kai);
-        if (strcmp(allcenter[kai].nime, "cambiar") == 0 ){
+ 
+    for (int kai = 0; kai<9; kai++){
+        if (strncmp(allcenter[kai].nime, "cambiar", 7) == 0 ){
             allcenter[kai].coord_x = m;
             allcenter[kai].coord_y = n;
-            strncpy(allcenter[kai].nime,tabla_a_unir,12);
+            strncpy(allcenter[kai].nime, tabla_a_unir, 12);
+            break;
         }
     }
 
@@ -222,11 +213,8 @@ void juntarTablas(char inicio[][75],char* tablaCentral, char*tabla_a_unir, struc
     int temp = m;
     n = n-2;
     
-    int r = m + 5;
-
-
     while ((caracter = fgetc(tmp)) != EOF){
-        if (m < r && caracter != ' ' && caracter != '\n' && caracter != '1' && caracter != '2' && caracter != '3' && caracter != '4'){
+        if ( caracter == 'B' || caracter == '1' || caracter == '2' || caracter == '3' || caracter == '4' || caracter == 'E' || caracter == '/' || caracter == '0'){
            inicio[m][n] = caracter;
             m++;
         }
@@ -234,68 +222,48 @@ void juntarTablas(char inicio[][75],char* tablaCentral, char*tabla_a_unir, struc
             n++;
             m = temp ;
         }
-        printf(" %d|%d ", m,n);
     }
-    int k = 0;
-    for (int i = 0; i <75; i++){
-        for(int j = 0; j<75; j++){
-             if(inicio[i][j] ==  'J'){
-                        switch (k){
-                            case 0:
-                                printf("%c1", inicio[j][i]);
-                                break;
-                            case 1:
-                                printf("%c2", inicio[j][i]);
-                                break;
-                            case 2:
-                                printf("%c3", inicio[j][i]);
-                                break;
-                            case 3:
-                                printf("%c4", inicio[j][i]);
-                                break;
-                        }
-                        k++;
-                }
-
-                else{
-                    printf("%c", inicio[j][i]);
-                }  
-            }
-
+    for (int i = 0; i <90; i++){
+        for(int j = 0; j<90; j++){
+            printf("%c", inicio[i][j]); 
+        }
         printf("\n");    
     }    
     fclose(tmp);
 }
 
-void verificarTablas(char inicio[][75],char* archivo,char** tableros, char dir, struct centros* allcenter){
+
+void verificarTablas(char inicio[][90],char* archivo,char** tableros, char dir, struct centros* allcenter){
     struct tableroN tablaSec;
     struct tableroN tablaTri;
     switch(dir){
         case 'u':
-            for(int i = 0; i<7; i++){
-                printf("%d", i);
-                
+           for(int i = 0; i<9; i++){
+                    printf("sas: %s\n",tableros[i]);
+                    //aqui esta el sus !!!!!!
+                    if(strcmp(tableros[i], "usado") != 0){
                     tablaSec = salidasT(archivo);
-                    printf("%d", tablaSec.bUP);
+                    
                     if(tablaSec.bUP == 1 ){
                         printf("ingreseeeeeee");
                         tablaTri = salidasT(tableros[i]);
                         if (tablaTri.bDown == 1){
-                            juntarTablas(inicio, archivo, tableros[i], allcenter, dir);
+                            //juntarTablas(inicio, archivo, tableros[i], allcenter, dir);
                             strcpy(tableros[i], "usado");
                             break;
                         }  
-                    
-                }
+                    }
+                }    
             }
             break;
+           
         case 'l':
-            for(int i = 0; i<7; i++){
+            for(int i = 0; i<9; i++){
                 printf("%d", i);
-                
+                    if(strcmp(tableros[i], "usado") != 0){
                     tablaSec = salidasT(archivo);
                     printf("%d", tablaSec.bLeft);
-                    if(tablaSec.bUP == 1 ){
+                    if(tablaSec.bLeft == 1 ){
                         printf("ingreseeeeeee");
                         tablaTri = salidasT(tableros[i]);
                         if (tablaTri.bRight == 1){
@@ -303,13 +271,14 @@ void verificarTablas(char inicio[][75],char* archivo,char** tableros, char dir, 
                             strcpy(tableros[i], "usado");
                             break;
                         }  
-                    
-                }
+                    }
+                }    
             }
             break;
         case 'r':    
-            for(int i = 0; i<7; i++){
+            for(int i = 0; i<9; i++){
                 printf("%d", i);
+                    if(strcmp(tableros[i], "usado") != 0){
                     tablaSec = salidasT(archivo);
                     printf("%d", tablaSec.bLeft);
                     if(tablaSec.bRight == 1 ){
@@ -321,126 +290,74 @@ void verificarTablas(char inicio[][75],char* archivo,char** tableros, char dir, 
                             break;
                         }  
                     }
-               
+                }    
             }
             break;
         case 'd':    
-            for(int i = 0; i<7; i++){
+            for(int i = 0; i<9; i++){
                 printf("%d", i);
+                    if(strcmp(tableros[i], "usado") != 0){
                     tablaSec = salidasT(archivo);
                     printf("%d", tablaSec.bLeft);
                     if(tablaSec.bDown == 1 ){
                         printf("ingreseeeeeee");
                         tablaTri = salidasT(tableros[i]);
                         if (tablaTri.bUP == 1){
-                            printf("%d", allcenter[0].coord_x);
                             juntarTablas(inicio, archivo, tableros[i], allcenter, dir);
                             strcpy(tableros[i], "usado");
                             break;
                         }  
-                    
-                }
+                    }
+                }    
             }
-            break;           
+            break;    
     }
 }
 
+int main(){
 
-int main2(){
-    char inicio[75][75];
-    struct centros todos[7];
-    for (int i = 0; i < 75; i++){
-        for (int j = 0; j < 75; j++){
+char inicio[90][90];
+struct centros todos[9];
+    for (int i = 0; i < 90; i++){
+        for (int j = 0; j < 90; j++){
             inicio[i][j] = '-';
         }
-    }
+   }
     FILE *file;
-    //printf("sas");
     file = fopen("Inicio.txt", "r");
     char caracter;
-    int fila = 35;
-    int j = 35;
-    int r = fila+5;
+    int fila = 45;
+    int j = 45;
     while ((caracter = fgetc(file)) != EOF){
   
-        if (fila< r && caracter != ' ' && caracter != '\n' && caracter != '1' && caracter != '2' && caracter != '3' && caracter != '4'){
-            
+        if (caracter == 'B' || caracter == 'E' || caracter == '1' || caracter == '0' || caracter == '/' || caracter == '1' || caracter == '2' || caracter =='3'|| caracter == '4'){
+
             inicio[fila][j] = caracter;
             fila++;
         }
         else if(caracter == '\n'){
             j++;
-            fila = 35;
+            fila = 45;
         }
     }
 
-    //printf("sas");
-    struct jugador jugadores[4];
-    int k = 0;
-    char nombre[3];
-    for (int i = 0; i <75; i++){
-        for(int j = 0; j<75; j++){
-             if(inicio[i][j] ==  'J'){
-                        switch (k){
-                         
-                            case 0:
-                                strcpy(nombre,"J1");
-                                strcpy(jugadores[k].nombre, nombre);
-                                jugadores[k].numJugador = 1;
-                                //printf("%c1", inicio[j][i]);
-                                break;
-                            case 1:
-                                strcpy(nombre,"J2");
-                                strcpy(jugadores[k].nombre, nombre);
-                                jugadores[k].numJugador = 2;
-                                //printf("%c2", inicio[j][i]);
-                                break;
-                            case 2:
-                                strcpy(nombre,"J3");
-                                strcpy(jugadores[k].nombre, nombre);
-                                jugadores[k].numJugador = 3;
-                                //printf("%c3", inicio[j][i]);
-                                break;
-                            case 3:
-                                strcpy(nombre,"J4");
-                                strcpy(jugadores[k].nombre, nombre);
-                                jugadores[k].numJugador = 4;
-                                //printf("%c4", inicio[j][i]);
-                                break;
-                        }
-                        jugadores[k].coord_x = i;
-                        jugadores[k].coord_y = j;
-                        k++;
-                }
 
-                else{
-                    //printf("%c", inicio[j][i]);
-                }
+    for (int i = 0; i <90; i++){
+        for(int j = 0; j<90; j++){
+             printf("%c",inicio[j][i]);
             }
 
-        //printf("\n");    
-    }    
+        printf("\n");    
+    }   
     fclose(file);
 
-    /*struct centros* probar = guardarCentros();
-    for(int g = 0; g<225; g++){
-        printf("%d|", probar[g].coord_x);
-        printf("%d ", probar[g].coord_y);
-    }*/
+   
 
-    /*for(int i = 0; i<4; i++){
-        printf(" %s", jugadores[i].nombre);
-        printf(" %d", jugadores[i].numJugador);
-        printf(" %d", jugadores[i].coord_x);
-        printf(" %d", jugadores[i].coord_y);
-    }*/
- 
-
-    for(int rai = 0; rai<7; rai++){
+    for(int rai = 0; rai<9; rai++){
         if (rai == 0){
             strcpy(todos[0].nime, "Inicio.txt");
-            todos[0].coord_x = 37;
-            todos[0].coord_y = 37; 
+            todos[0].coord_x = 47;
+            todos[0].coord_y = 47; 
         }
         else{
             strcpy(todos[rai].nime, "cambiar");
@@ -450,32 +367,29 @@ int main2(){
     }    
 
 
-
     char** tableros = revolverMazoT();
-    //printf("sas");
-    verificarTablas(inicio, "Inicio.txt", tableros, 'd', todos);
-
-    for (int i = 0; i<7; i++){
+    printf("\n\n");
+    verificarTablas(inicio, "Inicio.txt", tableros, 'u', todos);
+    char newtable[12];
+    for (int i = 0; i<9; i++){
+        if (strncmp(todos[i].nime, "tablero", 7) == 0){
+            strncpy(newtable, todos[i].nime, 12);
+        
+        }
         printf(" %s", todos[i].nime);
         printf(" %d", todos[i].coord_x);
-        printf(" %d\n", todos[i].coord_y);
+        printf(" %d", todos[i].coord_y);    
+    }
+    //verificarTablas(inicio, newtable, tableros, 'u', todos);
+    for (int i = 0; i<9; i++){
+        if (strncmp(todos[i].nime, "tablero", 7) == 0){
+            strncpy(newtable, todos[i].nime, 12);
         
+        }
+        printf(" %s", todos[i].nime);
+        printf(" %d", todos[i].coord_x);
+        printf(" %d", todos[i].coord_y);    
     }
-
-  
-    for (int i = 0; i<7; i++){
-        //printf(" %s", tableros[i]);
-        free(tableros[i]);
-    }
-    free(tableros);
-    return 0;
-}
-
-int main(){ 
-    struct charM *matriz = crearMatriz("Inicio.txt");
-    printf("%c\n",matriz->mp[2][0]);
-    printMatriz(matriz);
-
-
-    return 0;
-}
+    //verificarTablas(inicio, newtable, tableros, 'u', todos);
+ 
+} 
